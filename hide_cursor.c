@@ -26,9 +26,10 @@ int
 main(int argc, char *argv[])
 {
 	char opt;
-	int idle_time = 0;
+	int inactivity_time = 0;
+	// user can set time of inactivity, after which we will hide cursor
 	if (argc == 2)
-		idle_time = atoi(argv[1]) * 1000;
+		inactivity_time = atoi(argv[1]) * 1000;
 
 	conn = xcb_connect(NULL, NULL);
 	screen = xcb_setup_roots_iterator(xcb_get_setup(conn)).data;
@@ -36,11 +37,13 @@ main(int argc, char *argv[])
 	if (xcb_connection_has_error(conn))
 		return 1;
 
-	if (idle_time < 1) { // always hide cursor if -t is not set
+	// if no argument passed or it is incorrect then hide cursor forever
+	if (inactivity_time < 1) {
 		hide_cursor();
 		sleep(-1);
 	}
 
+	// check inputs if there is idle_time
 	struct {
 		xcb_input_event_mask_t head;
 		xcb_input_xi_event_mask_t mask;
@@ -57,7 +60,7 @@ main(int argc, char *argv[])
 		do {
 			do free(event);
 			while (event = xcb_poll_for_event(conn));
-			usleep(idle_time);
+			usleep(inactivity_time);
 		} while (event = xcb_poll_for_event(conn));
 	}
 }
