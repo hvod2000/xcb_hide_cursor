@@ -23,10 +23,10 @@ main(int argc, char *argv[])
 	} mask;
 	mask.head.deviceid = XCB_INPUT_DEVICE_ALL;
 	mask.head.mask_len = sizeof(mask.mask) / sizeof(uint32_t);
-	mask.mask = XCB_INPUT_XI_EVENT_MASK_MOTION;
+	mask.mask = XCB_INPUT_XI_EVENT_MASK_MOTION | XCB_INPUT_XI_EVENT_MASK_BUTTON_PRESS;
 	xcb_input_xi_select_events(conn, screen->root, 1, &mask.head);
 	xcb_generic_event_t *event;
 	xcb_flush(conn);
 	while (event = xcb_wait_for_event(conn))
-	    printf("Event: %d", event->response_type);
+	    printf("Event: %p\n", event);
 }
