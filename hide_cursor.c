@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <xcb/xcb.h>
 #include <xcb/xfixes.h>
+#include <xcb/xinput.h>
 
 xcb_connection_t *conn;
 xcb_screen_t *screen;
@@ -16,6 +17,15 @@ main(int argc, char *argv[])
 		return 1;
 	}
 	xcb_xfixes_hide_cursor(conn, screen->root);
-	xcb_flush(conn);
-	while (1);
+	struct {
+	    xcb_input_event_mask_t head;
+	    xcb_input_xi_event_mask_t mask;
+	} mask;
+	mask.head.deviceid = XCB_INPUT_DEVICE_ALL;
+	mask.head.mask_len = sizeof(mask.mask) / sizeof(uint32_t);
+	mask.mask = XCB_INPUT_XI_EVENT_MASK_MOTION;
+	xcb_input_xi_select_events(conn, screen->root, 1, &mask.head);
+	xcb_generic_event_t *event;
+	while (event = xcb_wait_for_event(conn))
+	    printf("Event: %d", event->response_type);
 }
