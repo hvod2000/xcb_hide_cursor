@@ -1,4 +1,3 @@
-#include <unistd.h>
 #include <stdio.h>
 #include <xcb/xcb.h>
 #include <xcb/xfixes.h>
